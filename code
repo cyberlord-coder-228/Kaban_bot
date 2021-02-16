@@ -1,0 +1,138 @@
+'use strict';
+
+const { Telegraf } = require('telegraf');
+const {google} = require('googleapis');
+const {stripHtml}= require("string-strip-html");
+const fetch = require('node-fetch');
+
+const bot = new Telegraf('1642862707:AAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+//const gApi = new GoogleAPI(process.env.google);
+
+
+bot.start(ctx => ctx.reply('Я готовий зіграти з тобою в одну гру)'));
+bot.hears('слон', ctx => ctx.reply('А го зіграєм'));
+
+bot.command('elephant', ctx => {
+  const input = ctx.message.text.split(' ').slice(1).join(' ');
+  //ctx.reply('Всі кажуть ' + input + ', а ти купи слона');
+
+  if (!input && ctx.message.reply_to_message) {
+    ctx.reply(`Всі кажуть ${ctx.message.reply_to_message.text}, а ти купи слона`);
+  } else if (!input) {
+    ctx.reply('Для того, щоб зіграти в слона необхідно написати текст після команди /elephant, або відповісти на будь-яке повідомлення цього бота відповідним текстом.');
+  } else {
+    ctx.reply(`Всі кажуть ${input}, а ти купи слона`);
+  }
+});
+
+bot.command('pidor', ctx => {
+  const input = ctx.message.text.split(' ').slice(1).join(' ');
+  ctx.reply('Сам такий!');
+});
+
+bot.command('zhevyi', async ctx => {
+  const input = ctx.message.text.split(' ').slice(1).join(' ');
+
+  const sleep = ms => new Promise (resolve => setTimeout(resolve, ms));
+
+  ctx.reply('Йа же-ВИЙ!');
+  await sleep(1000);
+  ctx.reply('Йа віль-НИЙ!');
+  await sleep(1000);
+  ctx.reply('Йамотіватор!');
+});
+
+bot.command('g', async ctx => {
+  const input = ctx.message.text.split(' ').slice(1).join(' ');
+  console.log(input);
+
+  async function wa(request) {
+    try {
+      const result = await gApi.getShort(request);
+      await ctx.reply(result);
+    } catch (err) {
+      if (err.message.includes('Коротка відповідь недоступна')) {
+        try {
+          await ctx.reply('Кидаю фотку');
+          const result = await gApi.getSimple(request); // URI (with suffix)
+          const base64 = result.toString().replace(/^.{22}/, '');
+          await ctx.replyWithPhoto({ source: Buffer.from(base64, 'base64') });
+        } catch (err) {
+          await ctx.reply(err.message);
+        }
+      } else await ctx.reply(err.message);
+    }
+  }
+});
+
+bot.command('rand', ctx => {
+  const input = ctx.message.text.split(' ').slice(1).join(' ');
+
+  if (!isNaN(parseInt(input, 10))) ctx.reply(Math.random() * parseInt(input, 10));
+  else ctx.reply(Math.random());
+});
+
+bot.command('wiki', async ctx => { /*by nocommas555*/
+  const input = ctx.message.text.split(' ').slice(1).join(' ');
+
+  if (input && /[a-z]/i.test(input)) try {
+    async function wiki_search(){
+    //const q = 'node.js'
+    let response = await fetch('https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&srlimit=5&srsearch='+input)
+    response = await response.json()
+
+    for (const res of response["query"]["search"])
+    {
+      let ret = stripHtml(res["snippet"]).result+"\n"
+      //if (!res["snippet"].toLowerCase().includes(res["title"].toLowerCase()))
+        ret = res['title'] + " - " + ret 
+
+      ctx.reply(ret);
+    }
+    }
+    try {wiki_search() } catch (e) { console.log(e.message); };
+  } catch (e) { console.log(e.message); };
+});
+
+bot.command('e', async ctx => {
+  let input = ctx.message.text.substring(3);
+  if (input && ctx.message.reply_to_message) input = ctx.message.reply_to_message.text + input;
+  let result;
+
+  console.log('input: ' + input);
+  //console.log(ctx.chat.id);
+  console.log('from.username: ' + ctx.chat.username);
+
+  try {
+  	if (!input.includes('process') && !input.includes('require') 
+  		&& !input.includes('exit') && !input.includes('import') && !input.includes('/*')
+  		&& !input.includes('*/') && !input.includes('eval') && !input.includes('for') 
+  		&& !input.includes('ctx') && !input.includes('while') && !input.includes('request') 
+  		&& !input.includes('Array') && !input.includes('repeat') && !input.includes('open')
+  		&& !input.includes('close') && !input.includes('this') && !input.includes('JSON')
+  		&& !input.includes('bot') && !input.includes('ping')) {result = eval(input);}
+  	else ctx.reply('It\'s forbidden');
+  	if (result !== undefined) ctx.reply(result);
+  } catch (e) { console.log(e.message); };
+
+  console.log(' ');
+});
+
+bot.command('eval', async ctx => {
+  const input = ctx.message.text.split(' ').slice(1).join(' ');
+
+  console.log(input);
+  console.log(ctx.chat.id);
+  console.log(ctx.chat.info);
+});
+
+
+bot.on('message', ctx => {
+  try {
+    if (ctx.message.reply_to_message && ctx.message.reply_to_message.from.id === 1642862707) {
+      ctx.reply(`Всі кажуть ${ctx.message.text}, а ти купи слона`);
+    }
+  } catch (e) { console.log(e.message); }
+});
+
+bot.launch().then(() => console.log('Bot has successfully started!'));
