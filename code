@@ -96,12 +96,17 @@ bot.command('wiki', async ctx => { /*by nocommas555*/
 
 bot.command('e', async ctx => {
   let input = ctx.message.text.substring(3);
-  if (input && ctx.message.reply_to_message) input = ctx.message.reply_to_message.text + input;
+  if (ctx.message.reply_to_message) {
+  	if (isNaN(ctx.message.reply_to_message.text)) input = '("' + ctx.message.reply_to_message.text + '")' + input;
+    else input = '(' + ctx.message.reply_to_message.text + ')' + input;
+  }
+  if (!input) ctx.reply('Так а вхідні дані не задано :/');
   let result;
 
   console.log('input: ' + input);
   //console.log(ctx.chat.id);
   console.log('from.username: ' + ctx.chat.username);
+  console.log('Name: ' + ctx.chat.first_name, ctx.chat.last_name);
 
   try {
   	if (!input.includes('process') && !input.includes('require') 
