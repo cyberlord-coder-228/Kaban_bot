@@ -42,7 +42,7 @@ bot.command('zhevyi', async ctx => {
   ctx.reply('Йамотіватор!');
 });
 
-bot.command('g', async ctx => {
+/*bot.command('g', async ctx => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
   console.log(input);
 
@@ -63,7 +63,7 @@ bot.command('g', async ctx => {
       } else await ctx.reply(err.message);
     }
   }
-});
+});*/ //команда в процесі розробки
 
 bot.command('rand', ctx => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
