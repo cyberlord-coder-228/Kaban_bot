@@ -25,14 +25,18 @@ bot.command('elephant', ctx => {
   }
 });
 
+bot.command('joke', ctx => {
+	const SubjectsArr = [...]; // тут всі можливі підмети
+	const ActionsArr = [...]; // тут всі можливі присудки
+
+  ctx.reply(SubjectsArr[Math.floor(Math.random() * SubjectsArr.length)] + ' ' +  ActionsArr[Math.floor(Math.random() * ActionsArr.length)]);
+});
+
 bot.command('pidor', ctx => {
-  const input = ctx.message.text.split(' ').slice(1).join(' ');
   ctx.reply('Сам такий!');
 });
 
 bot.command('zhevyi', async ctx => {
-  const input = ctx.message.text.split(' ').slice(1).join(' ');
-
   const sleep = ms => new Promise (resolve => setTimeout(resolve, ms));
 
   ctx.reply('Йа же-ВИЙ!');
@@ -72,7 +76,7 @@ bot.command('rand', ctx => {
   else ctx.reply(Math.random());
 });
 
-bot.command('wiki', async ctx => { /*by nocommas555*/
+bot.command('wiki', async ctx => { /*by nocommas555, mutated by ne_vlad_ip_04*/
   const input = ctx.message.text.split(' ').slice(1).join(' ');
 
   if (input && /[a-z]/i.test(input)) try {
