@@ -25,11 +25,25 @@ bot.command('elephant', ctx => {
   }
 });
 
+let isFirstJokeCall = true;
 bot.command('joke', ctx => {
+  if (isFirstTime) {
+    ctx.reply('Хочу вибачитись наперед');
+    return isFirstJokeCall = false;
+  }
+  if (Math.random() < 0.8) {
 	const SubjectsArr = [...]; // тут всі можливі підмети
+
 	const ActionsArr = [...]; // тут всі можливі присудки
 
-  ctx.reply(SubjectsArr[Math.floor(Math.random() * SubjectsArr.length)] + ' ' +  ActionsArr[Math.floor(Math.random() * ActionsArr.length)]);
+    ctx.reply(SubjectsArr[Math.floor(Math.random() * SubjectsArr.length)] +
+        ' ' +  ActionsArr[Math.floor(Math.random() * ActionsArr.length)] +
+        ((Math.random() < 0.1) ? '/*your phrase*/' : '')
+    );
+  } else {
+    const PunsArr = [...]; // тут всі можливі dad-jockes++
+    ctx.reply(PunsArr[Math.floor(Math.random() * PunsArr.length)]);
+  }
 });
 
 bot.command('pidor', ctx => {
