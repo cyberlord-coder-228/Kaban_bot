@@ -9,19 +9,18 @@ const bot = new Telegraf('1642862707:AAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 //const gApi = new GoogleAPI(process.env.google);
 
 
-bot.start(ctx => ctx.reply('Я готовий зіграти з тобою в одну гру)'));
-bot.hears('слон', ctx => ctx.reply('А го зіграєм'));
+bot.start(ctx => ctx.reply('/*start_phrase*/'));
 
 bot.command('elephant', ctx => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
-  //ctx.reply('Всі кажуть ' + input + ', а ти купи слона');
+  //ctx.reply('Всі кажуть ' + input + ', а ти купи /*something*/');
 
   if (!input && ctx.message.reply_to_message) {
-    ctx.reply(`Всі кажуть ${ctx.message.reply_to_message.text}, а ти купи слона`);
+    ctx.reply(`Всі кажуть ${ctx.message.reply_to_message.text}, а ти купи /*something*/`);
   } else if (!input) {
     ctx.reply('Для того, щоб зіграти в слона необхідно написати текст після команди /elephant, або відповісти на будь-яке повідомлення цього бота відповідним текстом.');
   } else {
-    ctx.reply(`Всі кажуть ${input}, а ти купи слона`);
+    ctx.reply(`Всі кажуть ${input}, а ти купи /*something*/`);
   }
 });
 
@@ -39,16 +38,16 @@ bot.command('joke', ctx => {
     ctx.reply(SubjectsArr[Math.floor(Math.random() * SubjectsArr.length)] +
         ' ' +  ActionsArr[Math.floor(Math.random() * ActionsArr.length)] +
         ((Math.random() < 0.1) ? '/*your phrase*/' : '')
-    );
+    ); //результат - просте речення типу "колобок втопився", яке може бути чи не бути смішним, залежно від ступеню хворобливості вашого почуття гумору
   } else {
     const PunsArr = [...]; // тут всі можливі dad-jockes++
-    ctx.reply(PunsArr[Math.floor(Math.random() * PunsArr.length)]);
+    ctx.reply(PunsArr[Math.floor(Math.random() * PunsArr.length)]); //результат - один з наперед заготованих панчлайнів
   }
 });
 
 bot.command('pidor', ctx => {
   ctx.reply('Сам такий!');
-});
+}); //а як зробити так, щоб бот саме реплаїв, а не просто писав щось у чат?
 
 bot.command('zhevyi', async ctx => {
   const sleep = ms => new Promise (resolve => setTimeout(resolve, ms));
@@ -81,7 +80,7 @@ bot.command('zhevyi', async ctx => {
       } else await ctx.reply(err.message);
     }
   }
-});*/ //команда в процесі розробки
+});*/ //команда в процесі розробки. хто знає як брати результати пошуку з гуглу - help
 
 bot.command('rand', ctx => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
@@ -110,12 +109,20 @@ bot.command('wiki', async ctx => { /*by nocommas555, mutated by ne_vlad_ip_04*/
     }
     try {wiki_search() } catch (e) { console.log(e.message); };
   } catch (e) { console.log(e.message); };
-});
+}); //видає рандомну частину визначення зі статті, що містить input. нащо - хз, але прикольно
 
 bot.command('e', async ctx => {
   let input = ctx.message.text.substring(3);
-  if (ctx.message.reply_to_message) {
-  	if (isNaN(ctx.message.reply_to_message.text)) input = '("' + ctx.message.reply_to_message.text + '")' + input;
+
+if (ctx.message.reply_to_message && ctx.message.reply_to_message.text) {
+  	if ((!input && ctx.message.reply_to_message.text.includes('='))
+  	     || input === 'precisely') 
+  	  input = ctx.message.reply_to_message.text;
+  	else if (isNaN(ctx.message.reply_to_message.text) 
+  		      && !ctx.message.reply_to_message.text.includes('=')) 
+  	  input = '("' + ctx.message.reply_to_message.text + '")' + input;
+  	else if (ctx.message.reply_to_message.text.includes('='))
+  	  input = '(' + ctx.message.reply_to_message.text + ')' + input;
     else input = '(' + ctx.message.reply_to_message.text + ')' + input;
   }
   if (!input) ctx.reply('Так а вхідні дані не задано :/');
@@ -123,8 +130,8 @@ bot.command('e', async ctx => {
 
   console.log('input: ' + input);
   //console.log(ctx.chat.id);
-  console.log('from.username: ' + ctx.chat.username);
-  console.log('Name: ' + ctx.chat.first_name, ctx.chat.last_name);
+  console.log('from.username: ' + ctx.message.from.username);
+  console.log('Name: ' + ctx.message.from.first_name, ctx.message.from.last_name);
 
   try {
   	if (!input.includes('process') && !input.includes('require') 
@@ -139,21 +146,27 @@ bot.command('e', async ctx => {
   } catch (e) { console.log(e.message); };
 
   console.log(' ');
-});
+}); //виконує заданий код (якщо він не містить нічого потенційно шкідливого) і відсилає повідомлення результату
 
-bot.command('eval', async ctx => {
+bot.command('giveinfo', async ctx => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
 
-  console.log(input);
-  console.log(ctx.chat.id);
-  console.log(ctx.chat.info);
-});
+  console.log('input: ' + input);
+  console.log('Chat_ID: ' + ctx.chat.id);
+  console.log('User_ID: ' + ctx.message.from.id);
+  console.log('from.username: ' + ctx.message.from.username);
+  console.log('Name: ' + ctx.message.from.first_name, ctx.message.from.last_name);
+  console.log(' ');
+}); //just for testing
 
+bot.hears('слон', ctx => ctx.reply('А го зіграєм'));
 
 bot.on('message', ctx => {
   try {
     if (ctx.message.reply_to_message && ctx.message.reply_to_message.from.id === 1642862707) {
-      ctx.reply(`Всі кажуть ${ctx.message.text}, а ти купи слона`);
+      if (Math.random() < 0.1 && !ctx.message.reply_to_message.text.includes('/о')) {
+      	ctx.reply(`Всі кажуть ${ctx.message.text}, а ти купи гараж`);
+      }
     }
   } catch (e) { console.log(e.message); }
 });
