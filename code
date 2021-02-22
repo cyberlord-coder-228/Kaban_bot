@@ -24,30 +24,91 @@ bot.command('elephant', ctx => {
   }
 });
 
-let isFirstJokeCall = true;
+const getRandElement = arr => arr[Math.floor(Math.random() * arr.length)];
+
+let isFirstTime = true;
 bot.command('joke', ctx => {
   if (isFirstTime) {
-    ctx.reply('Хочу вибачитись наперед');
-    return isFirstJokeCall = false;
+    ctx.reply('Хочу вибачитись наперед', { reply_to_message_id: ctx.message.message_id });
+    isFirstTime = false;
   }
-  if (Math.random() < 0.8) {
-	const SubjectsArr = [...]; // тут всі можливі підмети
+  if (Math.random() < 0.75) {
+    const SubjectsArr = [...]; // тут всі можливі підмети
 
-	const ActionsArr = [...]; // тут всі можливі присудки
+    const ActionsArr = [...]; // тут всі можливі присудки
 
-    ctx.reply(SubjectsArr[Math.floor(Math.random() * SubjectsArr.length)] +
-        ' ' +  ActionsArr[Math.floor(Math.random() * ActionsArr.length)] +
+    ctx.reply(getRandElement(SubjectsArr) +
+        ' ' +  getRandElement(ActionsArr) +
         ((Math.random() < 0.1) ? '/*your phrase*/' : '')
     ); //результат - просте речення типу "колобок втопився", яке може бути чи не бути смішним, залежно від ступеню хворобливості вашого почуття гумору
+  } else if (Math.random() < 0.2) {
+  	const FunnyPicturesArr = [...]; //тут посилання на смішняві картинки
+  	ctx.replyWithPhoto({url:getRandElement(FunnyPicturesArr)});
   } else {
-    const PunsArr = [...]; // тут всі можливі dad-jockes++
-    ctx.reply(PunsArr[Math.floor(Math.random() * PunsArr.length)]); //результат - один з наперед заготованих панчлайнів
+    const PunsArr = [...];
+    ctx.reply(getRandElement(PunsArr)); //результат - один з наперед заготованих панчлайнів
   }
 });
 
-bot.command('pidor', ctx => {
-  ctx.reply('Сам такий!');
-}); //а як зробити так, щоб бот саме реплаїв, а не просто писав щось у чат?
+bot.command('e', async ctx => {
+  let input = ctx.message.text.substring(3);
+  const Баба_Валя = 'Шиза';
+  const Алек = 'God';
+
+  if (ctx.message.reply_to_message && ctx.message.reply_to_message.text) {
+  	if ((!input && ctx.message.reply_to_message.text.includes('=')) ||
+  	     input === 'ascode' || input === 'precisely')
+  	  input = ctx.message.reply_to_message.text;
+  	else if (isNaN(ctx.message.reply_to_message.text) &&
+  		      !ctx.message.reply_to_message.text.includes('='))
+  	  input = '(`' + ctx.message.reply_to_message.text + '`)' + input;
+  	else if (ctx.message.reply_to_message.text.includes('='))
+  	  input = '(' + ctx.message.reply_to_message.text + ')' + input;
+    else input = '(' + ctx.message.reply_to_message.text + ')' + input;
+  }
+  if (!input) ctx.reply('Так а вхідні дані не задано :/', { reply_to_message_id: ctx.message.message_id });
+  let result;
+
+  console.log('input: ' + input);
+  //console.log(ctx.chat.id);
+  //console.log('from.username: ' + ctx.message.from.username);
+  //console.log('Name: ' + ctx.message.from.first_name, ctx.message.from.last_name);
+
+  try {
+  	if (!input.includes('process') && !input.includes('require') &&
+  		!input.includes('exit') && !input.includes('import') && !input.includes('/*') &&
+  		!input.includes('*/') && !input.includes('eval') && !input.includes('for') &&
+  		!input.includes('ctx') && !input.includes('while') && !input.includes('request') &&
+  		!input.includes('Array') && !input.includes('repeat') && !input.includes('open') &&
+  		!input.includes('close') && !input.includes('this') && !input.includes('JSON') &&
+  		!input.includes('bot') && !input.includes('ping')) {
+      result = eval(input.toString()).toString();
+  	} else ctx.reply('It\'s forbidden');
+
+  	if (result !== undefined && result !== null && result !== '' && !result.toString().match(/^[\s]*$/))
+  	  ctx.reply(result, { reply_to_message_id: ctx.message.message_id });
+  	else if (result === undefined)
+  		ctx.reply('undefined', { reply_to_message_id: ctx.message.message_id });
+  	else if (result === null)
+  		ctx.reply('null', { reply_to_message_id: ctx.message.message_id });
+  	else if (result === '')
+  		ctx.reply('empty string', { reply_to_message_id: ctx.message.message_id });
+  	else if (result.toString().match(/^[\s]*$/))
+  		ctx.reply('whitespace', { reply_to_message_id: ctx.message.message_id });
+  } catch (e) {
+  	console.log(e.message);
+  	ctx.reply(e.message);
+  }
+
+  console.log(' ');
+}); //виконує заданий код (якщо він не містить нічого потенційно шкідливого) і відсилає повідомлення результату
+
+bot.command('dmytr', ctx => {
+  const randVowel = () => getRandElement('аоуеиі');
+  const randConsonant = () => getRandElement('йцкнгшщзхфвпрлджчсмтб');
+
+  ctx.reply('Ре' + randConsonant() + randVowel() + randConsonant() + randVowel() + 'нський');
+});
 
 bot.command('zhevyi', async ctx => {
   const sleep = ms => new Promise (resolve => setTimeout(resolve, ms));
@@ -110,43 +171,6 @@ bot.command('wiki', async ctx => { /*by nocommas555, mutated by ne_vlad_ip_04*/
     try {wiki_search() } catch (e) { console.log(e.message); };
   } catch (e) { console.log(e.message); };
 }); //видає рандомну частину визначення зі статті, що містить input. нащо - хз, але прикольно
-
-bot.command('e', async ctx => {
-  let input = ctx.message.text.substring(3);
-
-if (ctx.message.reply_to_message && ctx.message.reply_to_message.text) {
-  	if ((!input && ctx.message.reply_to_message.text.includes('='))
-  	     || input === 'precisely') 
-  	  input = ctx.message.reply_to_message.text;
-  	else if (isNaN(ctx.message.reply_to_message.text) 
-  		      && !ctx.message.reply_to_message.text.includes('=')) 
-  	  input = '("' + ctx.message.reply_to_message.text + '")' + input;
-  	else if (ctx.message.reply_to_message.text.includes('='))
-  	  input = '(' + ctx.message.reply_to_message.text + ')' + input;
-    else input = '(' + ctx.message.reply_to_message.text + ')' + input;
-  }
-  if (!input) ctx.reply('Так а вхідні дані не задано :/');
-  let result;
-
-  console.log('input: ' + input);
-  //console.log(ctx.chat.id);
-  console.log('from.username: ' + ctx.message.from.username);
-  console.log('Name: ' + ctx.message.from.first_name, ctx.message.from.last_name);
-
-  try {
-  	if (!input.includes('process') && !input.includes('require') 
-  		&& !input.includes('exit') && !input.includes('import') && !input.includes('/*')
-  		&& !input.includes('*/') && !input.includes('eval') && !input.includes('for') 
-  		&& !input.includes('ctx') && !input.includes('while') && !input.includes('request') 
-  		&& !input.includes('Array') && !input.includes('repeat') && !input.includes('open')
-  		&& !input.includes('close') && !input.includes('this') && !input.includes('JSON')
-  		&& !input.includes('bot') && !input.includes('ping')) {result = eval(input);}
-  	else ctx.reply('It\'s forbidden');
-  	if (result !== undefined) ctx.reply(result);
-  } catch (e) { console.log(e.message); };
-
-  console.log(' ');
-}); //виконує заданий код (якщо він не містить нічого потенційно шкідливого) і відсилає повідомлення результату
 
 bot.command('giveinfo', async ctx => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
