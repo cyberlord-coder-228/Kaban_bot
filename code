@@ -52,8 +52,6 @@ bot.command('joke', ctx => {
 
 bot.command('e', async ctx => {
   let input = ctx.message.text.substring(3);
-  const Баба_Валя = 'Шиза';
-  const Алек = 'God';
 
   if (ctx.message.reply_to_message && ctx.message.reply_to_message.text) {
   	if ((!input && ctx.message.reply_to_message.text.includes('=')) ||
