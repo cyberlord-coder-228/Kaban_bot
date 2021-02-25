@@ -53,52 +53,64 @@ bot.command('joke', ctx => {
 bot.command('e', async ctx => {
   let input = ctx.message.text.substring(3);
 
-  if (ctx.message.reply_to_message && ctx.message.reply_to_message.text) {
-  	if ((!input && ctx.message.reply_to_message.text.includes('=')) ||
-  	     input === 'ascode' || input === 'precisely')
-  	  input = ctx.message.reply_to_message.text;
-  	else if (isNaN(ctx.message.reply_to_message.text) &&
-  		      !ctx.message.reply_to_message.text.includes('='))
-  	  input = '(`' + ctx.message.reply_to_message.text + '`)' + input;
-  	else if (ctx.message.reply_to_message.text.includes('='))
-  	  input = '(' + ctx.message.reply_to_message.text + ')' + input;
-    else input = '(' + ctx.message.reply_to_message.text + ')' + input;
-  }
-  if (!input) ctx.reply('Так а вхідні дані не задано :/', { reply_to_message_id: ctx.message.message_id });
-  let result;
+  const reply = ctx.message.reply_to_message;
 
-  console.log('input: ' + input);
-  //console.log(ctx.chat.id);
-  //console.log('from.username: ' + ctx.message.from.username);
-  //console.log('Name: ' + ctx.message.from.first_name, ctx.message.from.last_name);
+  if (reply && reply.text) {
+  	if ((!input && reply.text.includes('=')) || input === 'ascode')
+  	  input = reply.text;
+  	else if (isNaN(reply.text) && !reply.text.includes('='))
+  	  input = '(`' + reply.text + '`)' + input;
+  	else if (reply.text.includes('='))
+  	  input = '(' + reply.text + ')' + input;
+    else input = '(' + reply.text + ')' + input;
+  }
+
+  console.log('input:', input, 
+    '\nchat.id:', ctx.chat.id,
+    '\nfrom.username:', ctx.message.from.username,
+    '\nName:', ctx.message.from.first_name, ctx.message.from.last_name, '\n');
+
+  if (!input) {
+  	ctx.reply('Так а вхідні дані не задано :/',
+  	  { reply_to_message_id: ctx.message.message_id });
+  	return;
+  }
+
+  let result = 'Щось пішло не так...';
+
+  const BlackList = ['process', 'require', 'exit', 'import', '/*', '*/', 'eval',
+  'for', 'ctx', 'while', 'request', 'Array', 'repeat', 'open', 'close', 'this',
+  'JSON', 'bot', 'ping', 'function', 'prototype', 'console'];
+
+  const CheckForbiddenWords = () => {
+  	for (const el of BlackList) {
+  	  if (input.includes(el)) {
+  		result = el + ' is forbidden';
+		return;
+  	  }
+  	  else result = safeEval(input.toString()).toString();
+    }
+  }
+
+  const CheckVoid = () => {
+  	if (result === undefined)
+  		result = 'undefined';
+  	else if (result === null)
+  		result ='null';
+  	else if (result === '')
+  		result = 'empty string'
+  	else if (result.toString().match(/^[\s]*$/))
+  		result = 'whitespace';
+  }
 
   try {
-  	if (!input.includes('process') && !input.includes('require') &&
-  		!input.includes('exit') && !input.includes('import') && !input.includes('/*') &&
-  		!input.includes('*/') && !input.includes('eval') && !input.includes('for') &&
-  		!input.includes('ctx') && !input.includes('while') && !input.includes('request') &&
-  		!input.includes('Array') && !input.includes('repeat') && !input.includes('open') &&
-  		!input.includes('close') && !input.includes('this') && !input.includes('JSON') &&
-  		!input.includes('bot') && !input.includes('ping')) {
-      result = eval(input.toString()).toString();
-  	} else ctx.reply('It\'s forbidden');
-
-  	if (result !== undefined && result !== null && result !== '' && !result.toString().match(/^[\s]*$/))
-  	  ctx.reply(result, { reply_to_message_id: ctx.message.message_id });
-  	else if (result === undefined)
-  		ctx.reply('undefined', { reply_to_message_id: ctx.message.message_id });
-  	else if (result === null)
-  		ctx.reply('null', { reply_to_message_id: ctx.message.message_id });
-  	else if (result === '')
-  		ctx.reply('empty string', { reply_to_message_id: ctx.message.message_id });
-  	else if (result.toString().match(/^[\s]*$/))
-  		ctx.reply('whitespace', { reply_to_message_id: ctx.message.message_id });
+    CheckForbiddenWords();
+  	CheckVoid();
+  	ctx.reply(result, { reply_to_message_id: ctx.message.message_id });
   } catch (e) {
   	console.log(e.message);
   	ctx.reply(e.message);
   }
-
-  console.log(' ');
 }); //виконує заданий код (якщо він не містить нічого потенційно шкідливого) і відсилає повідомлення результату
 
 bot.command('dmytr', ctx => {
