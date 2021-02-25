@@ -84,13 +84,13 @@ bot.command('e', async ctx => {
   'JSON', 'bot', 'ping', 'function', 'prototype', 'console'];
 
   const CheckForbiddenWords = () => {
-  	for (const el of BlackList) {
-  	  if (input.includes(el)) {
+    for (const el of BlackList) {
+      if (input.includes(el)) {
   		result = el + ' is forbidden';
 		return;
-  	  }
-  	  else result = safeEval(input.toString()).toString();
+      }
     }
+    result = safeEval(input.toString()).toString();
   }
 
   const CheckVoid = () => {
