@@ -4,6 +4,7 @@ const { Telegraf } = require('telegraf');
 const {google} = require('googleapis');
 const {stripHtml}= require("string-strip-html");
 const fetch = require('node-fetch');
+const safeEval = require('safe-eval');
 
 const bot = new Telegraf('1642862707:AAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 //const gApi = new GoogleAPI(process.env.google);
