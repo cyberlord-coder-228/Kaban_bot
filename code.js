@@ -1,53 +1,58 @@
 'use strict';
 
 const { Telegraf } = require('telegraf');
-const {google} = require('googleapis');
-const {stripHtml}= require("string-strip-html");
+//const { google } = require('googleapis');
+const { stripHtml }= require("string-strip-html");
 const fetch = require('node-fetch');
 const safeEval = require('safe-eval');
+const myArrs = require('./MyArrs_kaban.js');
 
 const bot = new Telegraf('1642862707:AAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 //const gApi = new GoogleAPI(process.env.google);
 
+const ClarifyVoid = smth => {
+  if (smth === undefined) smth = 'undefined';
+  else if (smth === null) smth = 'null';
+  else if (smth === '') smth = 'empty string';
+  else if (smth.toString().match(/^[\s]*$/)) smth = 'whitespace';
+  return smth;
+};
+
+const getRandElement = arr => arr[Math.floor(Math.random() * arr.length)];
 
 bot.start(ctx => ctx.reply('/*start_phrase*/'));
 
 bot.command('elephant', ctx => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
-  //ctx.reply('Всі кажуть ' + input + ', а ти купи /*something*/');
 
   if (!input && ctx.message.reply_to_message) {
-    ctx.reply(`Всі кажуть ${ctx.message.reply_to_message.text}, а ти купи /*something*/`);
+    ctx.reply(
+      `Всі кажуть ${ctx.message.reply_to_message.text}, а ти купи /*something*/`);
   } else if (!input) {
-    ctx.reply('Для того, щоб зіграти в слона необхідно написати текст після команди /elephant, або відповісти на будь-яке повідомлення цього бота відповідним текстом.');
+    ctx.reply(
+      'Для того, щоб зіграти в слона необхідно написати текст після команди /elephant, або відповісти на будь-яке повідомлення цього бота відповідним текстом.');
   } else {
     ctx.reply(`Всі кажуть ${input}, а ти купи /*something*/`);
   }
 });
 
-const getRandElement = arr => arr[Math.floor(Math.random() * arr.length)];
-
 let isFirstTime = true;
 bot.command('joke', ctx => {
   if (isFirstTime) {
-    ctx.reply('Хочу вибачитись наперед', { reply_to_message_id: ctx.message.message_id });
+    ctx.reply('Хочу вибачитись наперед',
+      { reply_to_message_id: ctx.message.message_id });
     isFirstTime = false;
   }
-  if (Math.random() < 0.75) {
-    const SubjectsArr = [...]; // тут всі можливі підмети
-
-    const ActionsArr = [...]; // тут всі можливі присудки
-
-    ctx.reply(getRandElement(SubjectsArr) +
-        ' ' +  getRandElement(ActionsArr) +
-        ((Math.random() < 0.1) ? '/*your phrase*/' : '')
-    ); //результат - просте речення типу "колобок втопився", яке може бути чи не бути смішним, залежно від ступеню хворобливості вашого почуття гумору
-  } else if (Math.random() < 0.2) {
-  	const FunnyPicturesArr = [...]; //тут посилання на смішняві картинки
-  	ctx.replyWithPhoto({url:getRandElement(FunnyPicturesArr)});
+	
+  if (Math.random() < 0.15) {
+    ctx.reply(getRandElement(myArrs.SubjectsArr),
+      getRandElement(myArrs.ActionsArr) +
+      ((Math.random() < 0.1) ? '. Ось така хуйня, малята.' : '')
+    );
+  } else if (Math.random() < 0.25) {
+    ctx.replyWithPhoto({ url: getRandElement(myArrs.FunnyPicturesArr) });
   } else {
-    const PunsArr = [...];
-    ctx.reply(getRandElement(PunsArr)); //результат - один з наперед заготованих панчлайнів
+    ctx.reply(getRandElement(myArrs.PunsArr));
   }
 });
 
@@ -55,7 +60,6 @@ bot.command('e', async ctx => {
   let input = ctx.message.text.substring(3);
 
   const reply = ctx.message.reply_to_message;
-
   if (reply && reply.text) {
   	if ((!input && reply.text.includes('=')) || input === 'ascode')
   	  input = reply.text;
@@ -82,7 +86,6 @@ bot.command('e', async ctx => {
   const BlackList = ['process', 'require', 'exit', 'import', '/*', '*/', 'eval',
   'for', 'ctx', 'while', 'request', 'Array', 'repeat', 'open', 'close', 'this',
   'JSON', 'bot', 'ping', 'function', 'prototype', 'console'];
-
   const CheckForbiddenWords = () => {
     for (const el of BlackList) {
       if (input.includes(el)) {
@@ -91,22 +94,11 @@ bot.command('e', async ctx => {
       }
     }
     result = safeEval(input.toString()).toString();
-  }
-
-  const CheckVoid = () => {
-  	if (result === undefined)
-  		result = 'undefined';
-  	else if (result === null)
-  		result ='null';
-  	else if (result === '')
-  		result = 'empty string'
-  	else if (result.toString().match(/^[\s]*$/))
-  		result = 'whitespace';
-  }
+  };
 
   try {
     CheckForbiddenWords();
-  	CheckVoid();
+    result = ClarifyVoid();
   	ctx.reply(result, { reply_to_message_id: ctx.message.message_id });
   } catch (e) {
   	console.log(e.message);
@@ -182,6 +174,114 @@ bot.command('wiki', async ctx => { /*by nocommas555, mutated by ne_vlad_ip_04*/
     try {wiki_search() } catch (e) { console.log(e.message); };
   } catch (e) { console.log(e.message); };
 }); //видає рандомну частину визначення зі статті, що містить input. нащо - хз, але прикольно
+
+bot.command('transliterate', ctx => {
+  let input = ctx.message.text.substring(15);
+
+  const reply = ctx.message.reply_to_message;
+  if (reply && reply.text) input = reply.text;
+
+  input = ClarifyVoid(input);
+
+  //tmalss, I have 2 arrays with corresponding letters (or groups of letters) by posisions
+  const Uk = ['а', 'б', 'ц', ...];
+  const En = ['a', 'b', 'c', ...];
+
+  const ReplaceAll = (orgnlStr, search, replacement) => {
+    if (orgnlStr.includes(search)) {
+      return orgnlStr.split(search).join(replacement);
+    } else return orgnlStr;
+  }; //could be replaced by method  .replaceAll()  if supported
+
+  const Transliterate = text => {
+    let newTxt = ' ' + text;
+    if ((/[a-z]/i).test(text)) {
+      //have to replce these letters by hand, cause otherwise it`s complicated
+      newTxt.split('Th').join('Т')
+      .split('Ph').join('Ф')
+      .split('th').join('т')
+      .split('ph').join(r'ф');
+      for (let i = 0; i < En.length; i++) {
+        newTxt = ReplaceAll(newTxt, En[i], Uk[i]);
+      }
+      return ReplaceAll(newTxt, '\'', '');
+    } else if ((/[а-їґ]/i).test(text)) {
+      for (let i = 0; i < Uk.length; i++) {
+        newTxt = ReplaceAll(newTxt, Uk[i], En[i]);
+      }
+      return newTxt;
+    } else if (text) {
+      return text;
+    } else {
+      return 'Некоректні вхідні дані.\nIncorrect input.';
+    }
+  };
+
+  const TRCEW = input => { //Translit Regarding Case Every Word
+    const LineArr = input.split('\n');
+    const MLA = []; //modified LineArray
+    for (let line of LineArr) {
+      const WordArr = line.split(' ');
+      const MWA = []; //modified WordArray
+      for (let word of WordArr) {
+        if (word === word.toUpperCase() && word.length !== 1)
+          word = Transliterate(' ' + word.toLowerCase()).trim().toUpperCase();
+        else word = Transliterate(' ' + word).trim();
+        MWA.push(word);
+      }
+      line = MWA.join(' ');
+      MLA.push(line);
+    }
+    return MLA.join('\n');
+  };
+
+  ctx.reply(TRCEW(input));
+});
+
+bot.command('hoiku', ctx => {
+  let input = ctx.message.text.split(' ').slice(1).join(' ');
+
+  const reply = ctx.message.reply_to_message;
+  if (reply && reply.text) input = reply.text;
+
+  const SyllCount = text =>
+    text.toLowerCase()
+      .split('')
+      .filter(letter => 'eyuioaаоуеиіяюєїёыэꙇꙗѥѵѢ'.split('').some(el => el === letter))
+      .join('').length;
+
+  const HoikuCheck = x => {
+    if (SyllCount(x) === 17) {
+      let hoiku = '';
+      let sc = 0;
+      let lnCount = 1;
+
+      const WordArr = x.split(' ');
+      for (const word of WordArr) {
+        sc += SyllCount(word);
+        if (sc <= 5 && (lnCount === 1 || lnCount === 3)) {
+          hoiku += word + ' ';
+          if (sc === 5) {
+            hoiku += '\n';
+            lnCount++;
+            sc = 0;
+          }
+        } else if (sc <= 7 && lnCount === 2) {
+          hoiku += word + ' ';
+          //console.log(hoiku, '\n');
+          if (sc === 7) {
+            hoiku += '\n';
+            lnCount++;
+            sc = 0;
+          }
+        } else return 'Складів як у хоку, але, все ж, не хоку.';
+      }
+      return 'Так, це хоку:\n\n' + hoiku;
+    } else return 'Це не хоку (';
+  };
+
+  ctx.reply(HoikuCheck(input), { reply_to_message_id: ctx.message.message_id });
+});
 
 bot.command('giveinfo', async ctx => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
