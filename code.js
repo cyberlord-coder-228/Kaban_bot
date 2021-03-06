@@ -252,29 +252,25 @@ bot.command('hoiku', ctx => {
 
   const HoikuCheck = x => {
     if (SyllCount(x) === 17) {
+      const WordArr = x.split(' ');
+
       let hoiku = '';
       let sc = 0;
       let lnCount = 1;
-
-      const WordArr = x.split(' ');
+    
       for (const word of WordArr) {
         sc += SyllCount(word);
-        if (sc <= 5 && (lnCount === 1 || lnCount === 3)) {
-          hoiku += word + ' ';
-          if (sc === 5) {
-            hoiku += '\n';
-            lnCount++;
-            sc = 0;
-          }
-        } else if (sc <= 7 && lnCount === 2) {
+        if (sc <= 5 && (lnCount === 1 || lnCount === 3) ||
+            sc <= 7 && lnCount === 2) {
           hoiku += word + ' ';
           //console.log(hoiku, '\n');
-          if (sc === 7) {
+          if (sc === 5 && lnCount !== 2 ||
+          	sc === 7 && lnCount === 2) {
             hoiku += '\n';
             lnCount++;
             sc = 0;
           }
-        } else return 'Складів як у хоку, але, все ж, не хоку.';
+        } else return 'Це не хоку (';
       }
       return 'Так, це хоку:\n\n' + hoiku;
     } else return 'Це не хоку (';
