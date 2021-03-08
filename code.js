@@ -293,6 +293,40 @@ bot.command('giveinfo', async ctx => {
 bot.hears('слон', ctx => ctx.reply('А го зіграєм'));
 
 bot.on('message', ctx => {
+  const syllCount = text =>
+    text.toLowerCase()
+      .split('')
+      .filter(
+        letter => 'eyuioaаоуеиіяюєїёыэꙇꙗѥѵѢ'.split('')
+          .some(el => el === letter))
+      .join('').length;
+
+  const hoikuCheck = x => {
+    if (syllCount(x) === 17) {
+      const wordArr = x.split('\n').join(' ').split(' ');
+
+      let hoiku = '';
+      let sc = 0;
+      let lnCount = 1;
+
+      for (const word of wordArr) {
+        sc += syllCount(word);
+        if (sc <= 5 && (lnCount === 1 || lnCount === 3) ||
+            sc <= 7 && lnCount === 2) {
+          hoiku += word + ' ';
+          if (sc === 5 && lnCount !== 2 ||
+            sc === 7 && lnCount === 2) {
+            hoiku += '\n';
+            lnCount++;
+            sc = 0;
+          }
+        }
+      }
+      return hoiku;
+    }
+  };
+
+bot.on('message', ctx => {
   try {
     if (ctx.message.reply_to_message && ctx.message.reply_to_message.from.id === 1642862707) {
       if (Math.random() < 0.1 && !ctx.message.reply_to_message.text.includes('/о')) {
