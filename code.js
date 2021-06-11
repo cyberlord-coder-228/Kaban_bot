@@ -197,10 +197,10 @@ bot.command('transliterate', ctx => {
     let newTxt = ' ' + text;
     if ((/[a-z]/i).test(text)) {
       //have to replce these letters by hand, cause otherwise it`s complicated
-      newTxt.split('Th').join('Т')
-      .split('Ph').join('Ф')
-      .split('th').join('т')
-      .split('ph').join(r'ф');
+      newTxt = replaceAll(newTxt, 'Th', 'Т');
+      newTxt = replaceAll(newTxt, 'Ph', 'Ф');
+      newTxt = replaceAll(newTxt, 'th', 'т');
+      newTxt = replaceAll(newTxt, 'ph', 'ф');
       for (let i = 0; i < En.length; i++) {
         newTxt = ReplaceAll(newTxt, En[i], Uk[i]);
       }
