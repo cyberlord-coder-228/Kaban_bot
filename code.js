@@ -186,6 +186,13 @@ bot.command('transliterate', ctx => {
   //tmalss, I have 2 arrays with corresponding letters (or groups of letters) by posisions
   const Uk = ['а', 'б', 'ц', ...];
   const En = ['a', 'b', 'c', ...];
+	
+  const replaceAll = (orgnlStr, search, replacement) => {
+    if (orgnlStr.includes(search)) {
+      orgnlStr = orgnlStr.split(search).join(replacement);
+    }
+    return orgnlStr;
+  };
 
   const transliterate = text => {
     let newTxt = ' ' + text;
