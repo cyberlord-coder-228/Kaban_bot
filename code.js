@@ -187,27 +187,23 @@ bot.command('transliterate', ctx => {
   const Uk = ['а', 'б', 'ц', ...];
   const En = ['a', 'b', 'c', ...];
 
-  const ReplaceAll = (orgnlStr, search, replacement) => {
-    if (orgnlStr.includes(search)) {
-      return orgnlStr.split(search).join(replacement);
-    } else return orgnlStr;
-  }; //could be replaced by method  .replaceAll()  if supported
-
-  const Transliterate = text => {
+  const transliterate = text => {
     let newTxt = ' ' + text;
     if ((/[a-z]/i).test(text)) {
       //have to replce these letters by hand, cause otherwise it`s complicated
-      newTxt = replaceAll(newTxt, 'Th', 'Т');
-      newTxt = replaceAll(newTxt, 'Ph', 'Ф');
-      newTxt = replaceAll(newTxt, 'th', 'т');
-      newTxt = replaceAll(newTxt, 'ph', 'ф');
-      for (let i = 0; i < En.length; i++) {
-        newTxt = ReplaceAll(newTxt, En[i], Uk[i]);
+      replaceAll(newTxt, 'Th', 'Т');
+      replaceAll(newTxt, 'Ph', 'Ф');
+      replaceAll(newTxt, 'th', 'т');
+      replaceAll(newTxt, 'ph', 'ф');
+      for (let i = 0; i < En.length - 2; i++) {
+        replaceAll(newTxt, En[i], Uk[i]);
+        replaceAll(newTxt, En[i].toLowerCase(), Uk[i].toLowerCase());
       }
-      return ReplaceAll(newTxt, '\'', '');
+      return newTxt; //replaceAll(newTxt, '\'', '');
     } else if ((/[а-їґ]/i).test(text)) {
       for (let i = 0; i < Uk.length; i++) {
-        newTxt = ReplaceAll(newTxt, Uk[i], En[i]);
+        replaceAll(newTxt, Uk[i], En[i]);
+        replaceAll(newTxt, Uk[i].toLowerCase(), En[i].toLowerCase());
       }
       return newTxt;
     } else if (text) {
