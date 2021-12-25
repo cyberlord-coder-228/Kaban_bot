@@ -8,7 +8,7 @@ const FunnyPicturesArr = [...]; //here is links to memes/ funny pictures
 
 const PunsArr = [...]; //here is... well, puns
 
-const QuotesArr = [...]; //you want believe me. quotes goes here
+const QuotesArr = [...]; //you wont believe me. quotes goes here
 
 const ResponsesArr = [...]; //responses for /answer command
 
