@@ -1,0 +1,7 @@
+# Ignore up to date version of "database"
+myArrs_kaban.mjs
+
+# Ignore file with sensitive data
+.env
+
+
