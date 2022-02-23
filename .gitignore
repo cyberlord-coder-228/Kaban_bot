@@ -4,4 +4,5 @@ myArrs_kaban.mjs
 # Ignore file with sensitive data
 .env
 
-
+# Ignore TG ids of people with access to /sudo
+sudoers.js
