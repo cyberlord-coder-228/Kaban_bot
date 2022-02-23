@@ -5,4 +5,4 @@ myArrs_kaban.mjs
 .env
 
 # Ignore TG ids of people with access to /sudo
-sudoers.js
+sudoers.mjs
