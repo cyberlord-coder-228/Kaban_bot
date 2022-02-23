@@ -9,15 +9,17 @@ import {stripHtml} from 'string-strip-html';
 import fetch from 'node-fetch';
 import safeEval from 'safe-eval';
 
-import myArrs from './myArrs_kaban.js';
-import oneThousandWords from './oneThousandWords.js';
-import sudoers from './sudoers.js';
+import myArrs from './myArrs_kaban.mjs';
+import {sudoers} from './sudoers.mjs';
 
 const bot = new Telegraf(process.env.TOCKEN);
 
 let NEVER_JOKED_BEFORE = true;
 
-
+/**
+ * @param {*} smth - Something that may on may not be some kind of void.
+ * @return {*|string} smth - If it was legit, else the name of kind of void
+ */
 function clarifyVoid(smth) {
   if (smth === undefined) {
     smth = 'undefined';
@@ -105,6 +107,10 @@ bot.command('e', (ctx) => {
     return;
   }
 
+  /**
+   * @param {string} text
+   * @return {string|bool} Forbidden word if found, else false.
+   */
   function containsForbiddenWords(text) {
     const blackList = [
       'process', 'require', 'exit', 'import', '/*', '*/', 'eval', 'for', 'ctx',
@@ -142,8 +148,8 @@ bot.command('sudo', async (ctx) => {
   const input = ctx.message.text.substring(6);
 
   try {
-    for (const key in sudoers.sudoers) {
-      if (ctx.message.from.id === sudoers.sudoers[key]) {
+    for (const key in sudoers) {
+      if (ctx.message.from.id === sudoers[key]) {
         ctx.reply(
             eval(input),
             {reply_to_message_id: ctx.message.message_id},
@@ -191,18 +197,6 @@ bot.command('answer', (ctx) => {
   }
 });
 
-bot.command('pidor', (ctx) => {
-  ctx.reply(
-      getRandElement(myArrs.repliesArr),
-      {reply_to_message_id: ctx.message.message_id},
-  );
-});
-
-bot.command('zhevyi', async (ctx) => {
-  // command deprecated. use /e instead
-  ctx.reply('Мотівація то є сильна. Філософія. Психологія.');
-});
-
 bot.command('rand', (ctx) => {
   const input = ctx.message.text.split(' ').slice(1).join(' ');
 
@@ -233,93 +227,43 @@ bot.command('wiki', async (ctx) => {
   // shout out to nocommas555, the boi is  a genius
   const input = ctx.message.text.split(' ').slice(1).join(' ');
 
-  if (input && /[a-z]/i.test(input)) {
+  if (input && /[\w, ]+/.test(input)) {
     try {
-      async function wikiSearch() {
-        let response = await fetch(
+      /**
+       * Function sends all found (parts of) wiki articles as tg messages.
+       * @param {string} searchTerm - Alphanumeric word or phrase.
+       */
+      async function wikiSearch(searchTerm) {
+        const response = await fetch(
             'https://en.wikipedia.org/w/api.php?' +
-        'action=query' +
-        '&list=search' +
-        '&prop=info' +
-        '&inprop=url' +
-        '&utf8=' +
-        '&format=json' +
-        '&srlimit=5' +
-        '&srsearch=' +
-        input,
-        );
-        response = await response.json();
+            'action=query' +
+            '&list=search' +
+            '&prop=info' +
+            '&inprop=url' +
+            '&utf8=' +
+            '&format=json' +
+            '&srlimit=5' +
+            `&srsearch=${searchTerm}`,
+        ).then(async (resp) => await resp.json());
 
-        for (const res of response['query']['search']) {
-          let ret = stripHtml(res['snippet']).result + '\n';
-          ret = res['title'] + ' - ' + ret;
-
-          ctx.reply(ret);
+        for (const res of response.query.search) {
+          ctx.reply(`${res.title} - ${stripHtml(res.snippet).result}\n`);
         }
       }
       try {
-        wikiSearch();
+        wikiSearch(input);
       } catch (e) {
         console.log(e.message);
       }
     } catch (e) {
       console.log(e.message);
     }
+  } else {
+    ctx.reply('Incorrect input, bruh');
   }
 });
 
-bot.command('password', async (ctx) => {
-  async function getWikiArticle(searchTerm) {
-    let response = await fetch(
-        'https://en.wikipedia.org/w/api.php?' +
-      'action=query' +
-      '&list=search' +
-      '&prop=description' +
-      // + '&inprop=url'
-      '&utf8=' +
-      '&format=json' +
-      '&srlimit=1' +
-      '&srsearch=' +
-      searchTerm,
-    );
-    response = await response.json();
-
-    const article = stripHtml(response['query']['search'][0]['snippet']).result;
-
-    return article;
-  }
-
-  async function generatePassword(passLength=6) {
-    let password = '';
-
-    for (let i = 0; i < passLength; i++) {
-      console.log('Working on password...');
-
-      const seed = getRandElement(oneThousandWords.oneThousandWords);
-      const wikiResult = await getWikiArticle(seed);
-
-      const longRandomWordsArr = wikiResult
-          .split(' ')
-          .filter((word) => word.length > 4);
-
-      let randWord = getRandElement(longRandomWordsArr);
-      randWord = randWord.charAt(0).toUpperCase() + randWord.slice(1);
-
-      password += randWord;
-    }
-
-    return password;
-  }
-
-  const password = await generatePassword(5);
-
-  ctx.reply(
-      password,
-      {reply_to_message_id: ctx.message.message_id},
-  );
-});
-
-// damn, i forgot to implement /sum command (ukrainian dictionary). anyway
+// SUM should be available at @MrPaschenko_bot any soon
 
 bot.command('transliterate', (ctx) => {
   let input = ctx.message.text.split(' ').slice(1).join(' ');
