@@ -1,5 +1,9 @@
 'use strict';
 
 export const sudoers = {
-  'name_example': 420420420,
+  'me': 853803220,
+  'vasia': 706350354,
+  'oleh': 861004972,
+  'dment': 688516431,
+  'kyrylo': 1497417656,
 };
